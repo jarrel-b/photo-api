@@ -11,7 +11,7 @@ from photocatalog import CURRENT_VERSION
 from photos.models import Catalog
 
 from .data import DATETIME_FORMAT
-from .models import Prints, Statuses
+from .models import Orders, Prints, Statuses
 
 
 @pytest.fixture
@@ -147,3 +147,38 @@ def test_checkout_returns_correct_order_details(order_form):
         response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
 
     assert expected == json.loads(response.content)
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("django_db_setup")
+def test_checkout_order_is_persisted_to_database(order_form):
+    client = Client()
+    fake_order_id = uuid.uuid4()
+    with mock.patch(
+        "checkout.models.uuid.uuid4", autospec=True
+    ) as mock_uuid_uuid4:
+        mock_uuid_uuid4.side_effect = lambda: fake_order_id
+
+        response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+
+    response = json.loads(response.content)
+    assert len(Orders.objects.filter(id=response["id"])) == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("django_db_setup")
+def test_checkout_order_status_is_set_correctly(order_form):
+    client = Client()
+    fake_order_id = uuid.uuid4()
+    with mock.patch(
+        "checkout.models.uuid.uuid4", autospec=True
+    ) as mock_uuid_uuid4:
+        mock_uuid_uuid4.side_effect = lambda: fake_order_id
+
+        response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+
+    response = json.loads(response.content)
+    assert (
+        Orders.objects.filter(id=response["id"])[0].status
+        == Statuses.CREATED.value
+    )

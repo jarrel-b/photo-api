@@ -56,5 +56,7 @@ class Orders(models.Model):
     print_id = models.ForeignKey("Prints", on_delete=models.PROTECT)
     photo_id = models.ForeignKey("photos.Catalog", on_delete=models.PROTECT)
     status = models.CharField(
-        max_length=10, choices=[(s.value, s.value) for s in Statuses]
+        max_length=10,
+        choices=[(s.value, s.value) for s in Statuses],
+        default=Statuses.CREATED.value,
     )

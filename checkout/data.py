@@ -1,5 +1,3 @@
-from .models import Statuses
-
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
@@ -17,7 +15,7 @@ def process_order(form):
         raise  # TODO: Raise an error here.
     details = {
         "id": saved_form.id,
-        "status": Statuses.CREATED.value,
+        "status": saved_form.status,
         "placed_on": saved_form.time_placed.strftime(DATETIME_FORMAT),
         "items_ordered": [
             {
@@ -35,7 +33,7 @@ def process_order(form):
             "postal_code": saved_form.postal_code,
             "country": saved_form.country,
         },
-        "billing_summary": {  # TODO: Calculate shipping cost.
+        "billing_summary": {
             "order_total": float(saved_form.print_id.total_cost()),
             "shipping_total": float(saved_form.print_id.shipping_cost),
             "item_total": float(saved_form.print_id.print_cost),
