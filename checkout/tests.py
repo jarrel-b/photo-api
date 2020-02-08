@@ -5,11 +5,13 @@ from typing import Dict
 from unittest import mock
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.test import Client
 
 from photocatalog import CURRENT_VERSION
 from photos.models import Catalog
 
+from . import data
 from .data import DATETIME_FORMAT
 from .models import Orders, Prints, Statuses
 
@@ -31,6 +33,39 @@ def order_form(**kwargs) -> Dict:
     }
     body.update(kwargs)
     return body
+
+
+@pytest.mark.parametrize(
+    "form",
+    [
+        mock.Mock(address_line_one=None, address_line_two=None),
+        mock.Mock(address_line_one=None, address_line_two="address2"),
+    ],
+)
+def test_missing_address_raises_exception(form):
+    with pytest.raises(ValidationError):
+        data.format_address(form)
+
+
+@pytest.mark.parametrize(
+    "form,expected",
+    [
+        (
+            mock.Mock(address_line_one="address1", address_line_two=None),
+            "address1",
+        ),
+        (
+            mock.Mock(
+                address_line_one="address1", address_line_two="address2"
+            ),
+            "address1 address2",
+        ),
+    ],
+)
+def test_format_address_returns_expected(form, expected):
+    actual = data.format_address(form)
+
+    assert expected == actual
 
 
 def test_checkout_empty_body_returns_422_status_code():

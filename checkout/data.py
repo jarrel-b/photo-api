@@ -1,11 +1,16 @@
+from django.core.exceptions import ValidationError
+
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
 def format_address(form) -> str:
-    address_parts = [form.address_line_one]
-    if form.address_line_two:
-        address_parts += form.address_line_two
-    return " ".join(address_parts)
+    if not form.address_line_one:
+        raise ValidationError(
+            "Address field can not be empty.", code="invalid",
+        )
+    return " ".join(
+        i for i in (form.address_line_one, form.address_line_two) if i
+    )
 
 
 def process_order(form):
