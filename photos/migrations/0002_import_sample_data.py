@@ -7,8 +7,7 @@ CATALOG_SIZE = 100
 LOCATIONS = ["Los Angeles", "New York", "Paris", "London"]
 
 
-def import_catalog(apps, schema_editor):
-    # Import generated sample data.
+def import_sample_data(apps, schema_editor):
     Catalog = apps.get_model("photos", "Catalog")
     with transaction.atomic():
         for i in range(CATALOG_SIZE):
@@ -28,5 +27,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(import_catalog),
+        migrations.RunPython(import_sample_data),
     ]

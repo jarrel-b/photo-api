@@ -5,8 +5,8 @@ from django.test import Client
 
 from photocatalog import CURRENT_VERSION
 
+from .data import DEFAULT_PAGE_SIZE
 from .models import Catalog
-from .views import DEFAULT_PAGE_SIZE
 
 
 @pytest.fixture
