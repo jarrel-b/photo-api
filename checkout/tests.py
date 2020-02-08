@@ -1,3 +1,4 @@
+import re
 import json
 import uuid
 from datetime import datetime
@@ -13,7 +14,7 @@ from photos.models import Catalog
 
 from . import data
 from .data import DATETIME_FORMAT
-from .models import Orders, Prints, Statuses
+from .models import Orders, Prints, Statuses, US_PHONE_REGEX
 
 
 @pytest.fixture
@@ -33,6 +34,26 @@ def order_form(**kwargs) -> Dict:
     }
     body.update(kwargs)
     return body
+
+
+@pytest.mark.parametrize(
+    "phone,matches", [
+        ("555-555-5555", True),
+        ("223-456-7890", True),
+        ("+1 555-555-5555", True),
+        ("+10 555-555-5555", False),
+        ("123-456-7890", False),
+        ("055-055-5555", False),
+        ("555-555-555", False),
+        ("+1555-555-5555", False),
+        ("555*555*5555", False),
+        ("aaa-aaa-aaaa", False),
+    ]
+)
+def test_us_phone_regex(phone, matches):
+    is_match = re.match(US_PHONE_REGEX, phone)
+
+    assert matches == bool(is_match)
 
 
 @pytest.mark.parametrize(
@@ -102,6 +123,17 @@ def test_checkout_body_missing_inputs_returns_422_status_code(order_form):
     client = Client()
     expected = 422
     order_form.pop("email")
+
+    response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+
+    assert expected == response.status_code
+
+
+@pytest.mark.django_db
+def test_checkout_invalid_phone_number_returns_422_status_code(order_form):
+    client = Client()
+    expected = 422
+    order_form["primary_phone"] = "not-valid-number"
 
     response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
 

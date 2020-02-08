@@ -3,6 +3,10 @@ import uuid
 
 from django.db import models
 from django.utils import timezone
+from django.core.validators import RegexValidator
+
+
+US_PHONE_REGEX = r"(\+1\s)?[2-9][0-9]{2}-[2-9][0-9]{2}-[0-9]{4}"
 
 
 class Statuses(enum.Enum):
@@ -45,8 +49,10 @@ class Orders(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
-    # TODO: Assume there is some validation done for phone numbers.
-    primary_phone = models.CharField(max_length=20)
+    primary_phone = models.CharField(
+        max_length=20,
+        validators=[RegexValidator(regex=US_PHONE_REGEX)],
+    )
     address_line_one = models.CharField(max_length=100)
     address_line_two = models.CharField(max_length=100, null=True, blank=True)
     city = models.CharField(max_length=20)
