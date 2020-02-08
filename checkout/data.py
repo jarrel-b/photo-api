@@ -17,7 +17,11 @@ def process_order(form):
     if form.is_valid():
         saved_form = form.save(commit=True)
     else:
-        raise  # TODO: Raise an error here.
+        raise ValidationError(
+            "Order form is invalid. Reason: %(errors)s",
+            code="invalid",
+            params={"errors": form.errors},
+        )
     details = {
         "id": saved_form.id,
         "status": saved_form.status,

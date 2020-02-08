@@ -36,14 +36,14 @@ def order_form(**kwargs) -> Dict:
 
 
 @pytest.mark.parametrize(
-    "form",
-    [
+    "form", [
         mock.Mock(address_line_one=None, address_line_two=None),
         mock.Mock(address_line_one=None, address_line_two="address2"),
-    ],
+    ]
 )
 def test_missing_address_raises_exception(form):
     with pytest.raises(ValidationError):
+
         data.format_address(form)
 
 
@@ -66,6 +66,26 @@ def test_format_address_returns_expected(form, expected):
     actual = data.format_address(form)
 
     assert expected == actual
+
+
+def test_process_order_invalid_form_raises_error():
+    mock_form = mock.Mock()
+    mock_form.is_valid.return_value = False
+    with pytest.raises(ValidationError):
+
+        data.process_order(mock_form)
+
+
+@pytest.mark.django_db
+def test_process_order_invalid_form_does_not_commit_to_database():
+    mock_form = mock.Mock()
+    mock_form.is_valid.return_value = False
+    expected = Orders.objects.count()
+    with pytest.raises(ValidationError):
+
+        data.process_order(mock_form)
+
+    assert expected == Orders.objects.count()
 
 
 def test_checkout_empty_body_returns_422_status_code():
