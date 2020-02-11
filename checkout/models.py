@@ -1,10 +1,9 @@
 import enum
 import uuid
 
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
-from django.core.validators import RegexValidator
-
 
 US_PHONE_REGEX = r"(\+1\s)?[2-9][0-9]{2}-[2-9][0-9]{2}-[0-9]{4}"
 
@@ -50,8 +49,7 @@ class Orders(models.Model):
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
     primary_phone = models.CharField(
-        max_length=20,
-        validators=[RegexValidator(regex=US_PHONE_REGEX)],
+        max_length=20, validators=[RegexValidator(regex=US_PHONE_REGEX)],
     )
     address_line_one = models.CharField(max_length=100)
     address_line_two = models.CharField(max_length=100, null=True, blank=True)

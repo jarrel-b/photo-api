@@ -10,7 +10,8 @@ from .models import Catalog
 
 
 @pytest.fixture
-def clear_catalog(django_db_setup):
+@pytest.mark.usefixtures("django_db_setup")
+def clear_catalog():
     Catalog.objects.all().delete()
 
 
@@ -135,10 +136,10 @@ def test_list_catalog_pagination_returns_all_results():
     last_token = "token"
     expected = 100
     results = []
-
     while first or last_token:
         if first:
             first = False
+
             response = client.get(
                 f"/{CURRENT_VERSION}/catalog?page_size={page_size}"
             )

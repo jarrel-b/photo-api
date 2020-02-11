@@ -1,5 +1,5 @@
-import re
 import json
+import re
 import uuid
 from datetime import datetime
 from typing import Dict
@@ -14,7 +14,7 @@ from photos.models import Catalog
 
 from . import data
 from .data import DATETIME_FORMAT
-from .models import Orders, Prints, Statuses, US_PHONE_REGEX
+from .models import US_PHONE_REGEX, Orders, Prints, Statuses
 
 
 @pytest.fixture
@@ -37,7 +37,8 @@ def order_form(**kwargs) -> Dict:
 
 
 @pytest.mark.parametrize(
-    "phone,matches", [
+    "phone,matches",
+    [
         ("555-555-5555", True),
         ("223-456-7890", True),
         ("+1 555-555-5555", True),
@@ -48,7 +49,7 @@ def order_form(**kwargs) -> Dict:
         ("+1555-555-5555", False),
         ("555*555*5555", False),
         ("aaa-aaa-aaaa", False),
-    ]
+    ],
 )
 def test_us_phone_regex(phone, matches):
     is_match = re.match(US_PHONE_REGEX, phone)
@@ -57,10 +58,11 @@ def test_us_phone_regex(phone, matches):
 
 
 @pytest.mark.parametrize(
-    "form", [
+    "form",
+    [
         mock.Mock(address_line_one=None, address_line_two=None),
         mock.Mock(address_line_one=None, address_line_two="address2"),
-    ]
+    ],
 )
 def test_missing_address_raises_exception(form):
     with pytest.raises(ValidationError):
