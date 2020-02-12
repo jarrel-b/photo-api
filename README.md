@@ -118,3 +118,18 @@ Response: 415 Unsupported Media Type
   "last_name": ["This field is required."]
 }
 ```
+### `GET /v1/checkout/print-sizes`
+This endpoint lists available print sizes.
+###### EXAMPLE REQUEST
+```
+curl -X GET localhost:8000/v1/checkout/print-sizes
+```
+###### RESPONSE (STATUS 200)
+###### Response Content Type (application/json)
+```
+{
+  "1": "sml",
+  "2": "med",
+  "3": "lrg"
+}
+```

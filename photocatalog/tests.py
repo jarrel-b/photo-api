@@ -13,7 +13,7 @@ def disabled_csrf_app(django_app_factory):
     return app
 
 
-def test_index_returns_200_status_Code(django_app):
+def test_index_returns_200_status_code(django_app):
     expected = 200
     response = django_app.get("/")
 
@@ -222,3 +222,25 @@ def test_checkout_valid_form_saves_order(disabled_csrf_app, order_form):
 
     response = json.loads(response.content)
     assert Orders.objects.filter(id=response["id"]).first()
+
+
+@pytest.mark.django_db
+def test_list_sizes_returns_200_status_code(django_app):
+    expected = 200
+
+    django_app.get(f"/{CURRENT_VERSION}/checkout/print-sizes", status=expected)
+
+
+@pytest.mark.django_db
+def test_list_sizes_returns_expected(django_app):
+    expected = {
+        "1": "sml",
+        "2": "med",
+        "3": "lrg",
+    }
+
+    response = django_app.get(
+        f"/{CURRENT_VERSION}/checkout/print-sizes", status=200
+    )
+
+    assert expected == json.loads(response.content)

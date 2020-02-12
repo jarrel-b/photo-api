@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 
 from . import data
 from .forms import OrderForm
+from .models import Prints
 
 
 def purchase_print(request):
@@ -17,4 +18,5 @@ def purchase_print(request):
 
 
 def list_sizes(request):
-    return HttpResponse(200)
+    available_sizes = {row.id: row.size for row in Prints.objects.all()}
+    return JsonResponse(status=200, data=available_sizes)

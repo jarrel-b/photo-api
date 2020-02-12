@@ -285,3 +285,27 @@ def test_checkout_order_status_is_set_correctly(order_form):
         Orders.objects.filter(id=response["id"])[0].status
         == Statuses.CREATED.value
     )
+
+
+@pytest.mark.django_db
+def test_list_sizes_returns_200_status_code():
+    expected = 200
+    client = Client()
+
+    response = client.get(f"/{CURRENT_VERSION}/checkout/print-sizes")
+
+    assert expected == response.status_code
+
+
+@pytest.mark.django_db
+def test_list_sizes_returns_expected():
+    expected = {
+        "1": "sml",
+        "2": "med",
+        "3": "lrg",
+    }
+    client = Client()
+
+    response = client.get(f"/{CURRENT_VERSION}/checkout/print-sizes")
+
+    assert expected == json.loads(response.content)
