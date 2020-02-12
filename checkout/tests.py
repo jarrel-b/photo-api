@@ -96,7 +96,7 @@ def test_checkout_empty_body_returns_422_status_code():
     expected = 422
 
     response = client.post(
-        f"/{CURRENT_VERSION}/checkout", {}, content_type="application/json"
+        f"/{CURRENT_VERSION}/checkout/", {}, content_type="application/json"
     )
 
     assert expected == response.status_code
@@ -109,7 +109,7 @@ def test_checkout_body_missing_inputs_returns_422_status_code(order_form):
     order_form.pop("email")
 
     response = client.post(
-        f"/{CURRENT_VERSION}/checkout",
+        f"/{CURRENT_VERSION}/checkout/",
         order_form,
         content_type="application/json",
     )
@@ -124,7 +124,7 @@ def test_checkout_invalid_phone_number_returns_422_status_code(order_form):
     order_form["primary_phone"] = "not-valid-number"
 
     response = client.post(
-        f"/{CURRENT_VERSION}/checkout",
+        f"/{CURRENT_VERSION}/checkout/",
         order_form,
         content_type="application/json",
     )
@@ -139,7 +139,7 @@ def test_checkout_invalid_print_id_returns_422_status_code(order_form):
     order_form["print_id"] = "extra extra large"
 
     response = client.post(
-        f"/{CURRENT_VERSION}/checkout",
+        f"/{CURRENT_VERSION}/checkout/",
         order_form,
         content_type="application/json",
     )
@@ -154,7 +154,7 @@ def test_checkout_invalid_photo_id_returns_422_status_code(order_form):
     order_form["photo_id"] = "a-non-existent-photo"
 
     response = client.post(
-        f"/{CURRENT_VERSION}/checkout",
+        f"/{CURRENT_VERSION}/checkout/",
         order_form,
         content_type="application/json",
     )
@@ -168,7 +168,7 @@ def test_checkout_valid_body_returns_201_status_code(order_form):
     expected = 201
 
     response = client.post(
-        f"/{CURRENT_VERSION}/checkout",
+        f"/{CURRENT_VERSION}/checkout/",
         order_form,
         content_type="application/json",
     )
@@ -236,7 +236,7 @@ def test_checkout_returns_correct_order_details(order_form):
         mock_uuid_uuid4.side_effect = lambda: fake_order_id
 
         response = client.post(
-            f"/{CURRENT_VERSION}/checkout",
+            f"/{CURRENT_VERSION}/checkout/",
             order_form,
             content_type="application/json",
         )
@@ -255,7 +255,7 @@ def test_checkout_order_is_persisted_to_database(order_form):
         mock_uuid_uuid4.side_effect = lambda: fake_order_id
 
         response = client.post(
-            f"/{CURRENT_VERSION}/checkout",
+            f"/{CURRENT_VERSION}/checkout/",
             order_form,
             content_type="application/json",
         )
@@ -275,7 +275,7 @@ def test_checkout_order_status_is_set_correctly(order_form):
         mock_uuid_uuid4.side_effect = lambda: fake_order_id
 
         response = client.post(
-            f"/{CURRENT_VERSION}/checkout",
+            f"/{CURRENT_VERSION}/checkout/",
             order_form,
             content_type="application/json",
         )

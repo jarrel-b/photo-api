@@ -27,7 +27,7 @@ def test_list_catalog_returns_200_status_code():
     client = Client()
     expected = 200
 
-    response = client.get(f"/{CURRENT_VERSION}/catalog")
+    response = client.get(f"/{CURRENT_VERSION}/catalog/")
 
     assert expected == response.status_code
 
@@ -38,7 +38,7 @@ def test_list_catalog_empty_catalog_returns_empty_result_set():
     client = Client()
     expected = {"count": 0, "last_token": None, "results": []}
 
-    response = client.get(f"/{CURRENT_VERSION}/catalog")
+    response = client.get(f"/{CURRENT_VERSION}/catalog/")
 
     assert expected == json.loads(response.content)
 
@@ -52,7 +52,7 @@ def test_list_catalog_no_page_size_and_no_last_token_returns_all_results():
     client = Client()
     expected = 10
 
-    response = client.get(f"/{CURRENT_VERSION}/catalog")
+    response = client.get(f"/{CURRENT_VERSION}/catalog/")
 
     response = json.loads(response.content)
     assert expected == len(response["results"]) == response["count"]
@@ -62,7 +62,7 @@ def test_list_catalog_no_page_size_and_no_last_token_returns_all_results():
 def test_list_catalog_last_token_is_expected():
     client = Client()
 
-    response = client.get(f"/{CURRENT_VERSION}/catalog")
+    response = client.get(f"/{CURRENT_VERSION}/catalog/")
 
     response = json.loads(response.content)
     assert response["last_token"] == response["results"][-1]["id"]
@@ -74,7 +74,7 @@ def test_list_catalog_page_size_but_no_last_token_returns_first_page():
     page_size = 20
     expected = 20
 
-    response = client.get(f"/{CURRENT_VERSION}/catalog?page_size={page_size}")
+    response = client.get(f"/{CURRENT_VERSION}/catalog/?page_size={page_size}")
 
     response = json.loads(response.content)
     assert expected == len(response["results"]) == response["count"]
@@ -87,7 +87,7 @@ def test_list_catalog_no_page_size_but_last_token_returns_next_page():
     expected = DEFAULT_PAGE_SIZE
 
     response = client.get(
-        f"/{CURRENT_VERSION}/catalog?last_token={last_token}"
+        f"/{CURRENT_VERSION}/catalog/?last_token={last_token}"
     )
 
     response = json.loads(response.content)
@@ -102,7 +102,7 @@ def test_list_catalog_page_size_and_last_token_returns_next_page():
     expected = 10
 
     response = client.get(
-        f"/{CURRENT_VERSION}/catalog?"
+        f"/{CURRENT_VERSION}/catalog/?"
         f"last_token={last_token}&page_size={page_size}"
     )
 
@@ -117,7 +117,7 @@ def test_list_catalog_page_size_and_last_token_returns_expected():
     page_size = 10
 
     response = client.get(
-        f"/{CURRENT_VERSION}/catalog?"
+        f"/{CURRENT_VERSION}/catalog/?"
         f"last_token={last_token}&page_size={page_size}"
     )
 
@@ -141,12 +141,12 @@ def test_list_catalog_pagination_returns_all_results():
             first = False
 
             response = client.get(
-                f"/{CURRENT_VERSION}/catalog?page_size={page_size}"
+                f"/{CURRENT_VERSION}/catalog/?page_size={page_size}"
             )
         else:
             response = client.get(
                 (
-                    f"/{CURRENT_VERSION}/catalog?"
+                    f"/{CURRENT_VERSION}/catalog/?"
                     f"page_size={page_size}&last_token={last_token}"
                 )
             )

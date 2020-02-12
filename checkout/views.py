@@ -14,3 +14,7 @@ def purchase_print(request):
         return JsonResponse(status=422, data=form.errors)
     details = data.process_order(form)
     return JsonResponse(status=201, data=details)
+
+
+def list_sizes(request):
+    return HttpResponse(200)

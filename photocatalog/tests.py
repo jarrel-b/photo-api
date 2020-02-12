@@ -23,7 +23,7 @@ def test_index_returns_200_status_Code(django_app):
 @pytest.mark.django_db
 def test_list_catalog_returns_200_status_code(django_app):
     expected = 200
-    response = django_app.get(f"/{CURRENT_VERSION}/catalog")
+    response = django_app.get(f"/{CURRENT_VERSION}/catalog/")
 
     assert expected == response.status_code
 
@@ -32,7 +32,7 @@ def test_list_catalog_returns_200_status_code(django_app):
 def test_list_catalog_does_not_change_catalog(django_app):
     expected = [row for row in Catalog.objects.all()]
 
-    django_app.get(f"/{CURRENT_VERSION}/catalog")
+    django_app.get(f"/{CURRENT_VERSION}/catalog/")
 
     actual = [row for row in Catalog.objects.all()]
     assert expected == actual
@@ -48,7 +48,7 @@ def test_list_catalog_with_no_query_params_returns_all_results(django_app):
         item.save()
     expected = items
 
-    response = django_app.get(f"/{CURRENT_VERSION}/catalog")
+    response = django_app.get(f"/{CURRENT_VERSION}/catalog/")
 
     response = json.loads(response.content)
     assert expected == len(response["results"]) == response["count"]
@@ -78,7 +78,7 @@ def test_list_catalog_with_no_query_params_returns_expected(django_app):
         ],
     }
 
-    response = django_app.get(f"/{CURRENT_VERSION}/catalog")
+    response = django_app.get(f"/{CURRENT_VERSION}/catalog/")
 
     assert expected == json.loads(response.content)
 
@@ -100,7 +100,7 @@ def test_list_catalog_pagination_returns_all_items(django_app):
 
         response = django_app.get(
             (
-                f"/{CURRENT_VERSION}/catalog?"
+                f"/{CURRENT_VERSION}/catalog/?"
                 f"page_size={page_size}&last_token={last_token}"
             )
         )
@@ -137,7 +137,7 @@ def test_list_catalog_pagination_returns_expected(django_app):
 
         response = django_app.get(
             (
-                f"/{CURRENT_VERSION}/catalog?"
+                f"/{CURRENT_VERSION}/catalog/?"
                 f"page_size={page_size}&last_token={last_token}"
             )
         )
@@ -152,7 +152,7 @@ def test_checkout_invalid_content_type_returns_415(disabled_csrf_app):
     expected = 415
 
     disabled_csrf_app.post(
-        f"/{CURRENT_VERSION}/checkout",
+        f"/{CURRENT_VERSION}/checkout/",
         headers={"Content-Type": "text-plain"},
         status=expected,
     )
@@ -162,7 +162,7 @@ def test_checkout_invalid_form_returns_422(disabled_csrf_app):
     expected = 422
 
     disabled_csrf_app.post_json(
-        f"/{CURRENT_VERSION}/checkout", {}, status=expected,
+        f"/{CURRENT_VERSION}/checkout/", {}, status=expected,
     )
 
 
@@ -173,7 +173,7 @@ def test_checkout_invalid_form_provides_reason_why(
     order_form.pop("first_name")
 
     response = disabled_csrf_app.post_json(
-        f"/{CURRENT_VERSION}/checkout", order_form, status=422,
+        f"/{CURRENT_VERSION}/checkout/", order_form, status=422,
     )
 
     response = json.loads(response.content)
@@ -188,7 +188,7 @@ def test_checkout_invalid_form_does_not_save_order(
     expected = Orders.objects.count()
 
     disabled_csrf_app.post_json(
-        f"/{CURRENT_VERSION}/checkout", order_form, status=422,
+        f"/{CURRENT_VERSION}/checkout/", order_form, status=422,
     )
 
     actual = Orders.objects.count()
@@ -200,14 +200,14 @@ def test_checkout_valid_form_returns_201(disabled_csrf_app, order_form):
     expected = 201
 
     disabled_csrf_app.post_json(
-        f"/{CURRENT_VERSION}/checkout", order_form, status=expected
+        f"/{CURRENT_VERSION}/checkout/", order_form, status=expected
     )
 
 
 @pytest.mark.django_db
 def test_checkout_valid_form_provides_order_id(disabled_csrf_app, order_form):
     response = disabled_csrf_app.post_json(
-        f"/{CURRENT_VERSION}/checkout", order_form, status=201
+        f"/{CURRENT_VERSION}/checkout/", order_form, status=201
     )
 
     response = json.loads(response.content)
