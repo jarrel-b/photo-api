@@ -2,8 +2,15 @@ import json
 
 import pytest
 
+from checkout.models import Orders
 from photocatalog import CURRENT_VERSION
 from photos.models import IMAGE_NOT_AVAILABLE_PATH, Catalog
+
+
+@pytest.fixture
+def disabled_csrf_app(django_app_factory):
+    app = django_app_factory(csrf_checks=False)
+    return app
 
 
 def test_index_returns_200_status_Code(django_app):
@@ -139,3 +146,73 @@ def test_list_catalog_pagination_returns_expected(django_app):
         last_token = response["last_token"]
 
     assert expected == results
+
+
+def test_checkout_invalid_content_type_returns_415(disabled_csrf_app):
+    expected = 415
+
+    disabled_csrf_app.post(
+        f"/{CURRENT_VERSION}/checkout",
+        headers={"Content-Type": "text-plain"},
+        status=expected,
+    )
+
+
+def test_checkout_invalid_form_returns_422(disabled_csrf_app):
+    expected = 422
+
+    disabled_csrf_app.post_json(
+        f"/{CURRENT_VERSION}/checkout", {}, status=expected,
+    )
+
+
+@pytest.mark.django_db
+def test_checkout_invalid_form_provides_reason_why(
+    disabled_csrf_app, order_form
+):
+    order_form.pop("first_name")
+
+    response = disabled_csrf_app.post_json(
+        f"/{CURRENT_VERSION}/checkout", order_form, status=422,
+    )
+
+    response = json.loads(response.content)
+    assert "first_name" in response
+
+
+@pytest.mark.django_db
+def test_checkout_invalid_form_does_not_save_order(
+    disabled_csrf_app, order_form
+):
+    order_form.pop("first_name")
+    expected = Orders.objects.count()
+
+    disabled_csrf_app.post_json(
+        f"/{CURRENT_VERSION}/checkout", order_form, status=422,
+    )
+
+    actual = Orders.objects.count()
+    assert expected == actual
+
+
+@pytest.mark.django_db
+def test_checkout_valid_form_returns_201(disabled_csrf_app, order_form):
+    expected = 201
+
+    disabled_csrf_app.post_json(
+        f"/{CURRENT_VERSION}/checkout", order_form, status=expected
+    )
+
+
+@pytest.mark.django_db
+def test_checkout_valid_form_provides_order_id(disabled_csrf_app, order_form):
+    response = disabled_csrf_app.post_json(
+        f"/{CURRENT_VERSION}/checkout", order_form, status=201
+    )
+
+    response = json.loads(response.content)
+    assert "id" in response
+
+
+def test_checkout_valid_form_saves_order():
+    pass
