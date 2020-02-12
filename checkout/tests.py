@@ -2,7 +2,6 @@ import json
 import re
 import uuid
 from datetime import datetime
-from typing import Dict
 from unittest import mock
 
 import pytest
@@ -15,25 +14,6 @@ from photos.models import Catalog
 from . import data
 from .data import DATETIME_FORMAT
 from .models import US_PHONE_REGEX, Orders, Prints, Statuses
-
-
-@pytest.fixture
-def order_form(**kwargs) -> Dict:
-    body = {
-        "first_name": "John",
-        "last_name": "Smith",
-        "email": "john.smith@domain.com",
-        "primary_phone": "555-555-5555",
-        "address_line_one": "P Sherman 42 Wallaby Way",
-        "city": "Sydney",
-        "state_or_region": "New South Wales",
-        "postal_code": 2000,
-        "country": "AUS",
-        "print_id": 1,
-        "photo_id": 10,
-    }
-    body.update(kwargs)
-    return body
 
 
 @pytest.mark.parametrize(
@@ -115,7 +95,9 @@ def test_checkout_empty_body_returns_422_status_code():
     client = Client()
     expected = 422
 
-    response = client.post(f"/{CURRENT_VERSION}/checkout", {})
+    response = client.post(
+        f"/{CURRENT_VERSION}/checkout", {}, content_type="application/json"
+    )
 
     assert expected == response.status_code
 
@@ -126,7 +108,11 @@ def test_checkout_body_missing_inputs_returns_422_status_code(order_form):
     expected = 422
     order_form.pop("email")
 
-    response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+    response = client.post(
+        f"/{CURRENT_VERSION}/checkout",
+        order_form,
+        content_type="application/json",
+    )
 
     assert expected == response.status_code
 
@@ -137,7 +123,11 @@ def test_checkout_invalid_phone_number_returns_422_status_code(order_form):
     expected = 422
     order_form["primary_phone"] = "not-valid-number"
 
-    response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+    response = client.post(
+        f"/{CURRENT_VERSION}/checkout",
+        order_form,
+        content_type="application/json",
+    )
 
     assert expected == response.status_code
 
@@ -148,7 +138,11 @@ def test_checkout_invalid_print_id_returns_422_status_code(order_form):
     expected = 422
     order_form["print_id"] = "extra extra large"
 
-    response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+    response = client.post(
+        f"/{CURRENT_VERSION}/checkout",
+        order_form,
+        content_type="application/json",
+    )
 
     assert expected == response.status_code
 
@@ -159,7 +153,11 @@ def test_checkout_invalid_photo_id_returns_422_status_code(order_form):
     expected = 422
     order_form["photo_id"] = "a-non-existent-photo"
 
-    response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+    response = client.post(
+        f"/{CURRENT_VERSION}/checkout",
+        order_form,
+        content_type="application/json",
+    )
 
     assert expected == response.status_code
 
@@ -169,7 +167,11 @@ def test_checkout_valid_body_returns_201_status_code(order_form):
     client = Client()
     expected = 201
 
-    response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+    response = client.post(
+        f"/{CURRENT_VERSION}/checkout",
+        order_form,
+        content_type="application/json",
+    )
 
     assert expected == response.status_code
 
@@ -233,7 +235,11 @@ def test_checkout_returns_correct_order_details(order_form):
         mock_generate_now.side_effect = lambda: now
         mock_uuid_uuid4.side_effect = lambda: fake_order_id
 
-        response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+        response = client.post(
+            f"/{CURRENT_VERSION}/checkout",
+            order_form,
+            content_type="application/json",
+        )
 
     assert expected == json.loads(response.content)
 
@@ -248,7 +254,11 @@ def test_checkout_order_is_persisted_to_database(order_form):
     ) as mock_uuid_uuid4:
         mock_uuid_uuid4.side_effect = lambda: fake_order_id
 
-        response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+        response = client.post(
+            f"/{CURRENT_VERSION}/checkout",
+            order_form,
+            content_type="application/json",
+        )
 
     response = json.loads(response.content)
     assert len(Orders.objects.filter(id=response["id"])) == 1
@@ -264,7 +274,11 @@ def test_checkout_order_status_is_set_correctly(order_form):
     ) as mock_uuid_uuid4:
         mock_uuid_uuid4.side_effect = lambda: fake_order_id
 
-        response = client.post(f"/{CURRENT_VERSION}/checkout", order_form)
+        response = client.post(
+            f"/{CURRENT_VERSION}/checkout",
+            order_form,
+            content_type="application/json",
+        )
 
     response = json.loads(response.content)
     assert (
