@@ -44,7 +44,7 @@ class Orders(models.Model):
     id = models.UUIDField(
         primary_key=True, default=generate_uuid, editable=False
     )
-    time_placed = models.DateTimeField(auto_now_add=True, default=generate_now)
+    time_placed = models.DateTimeField(default=generate_now)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
