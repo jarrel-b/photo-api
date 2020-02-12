@@ -214,5 +214,11 @@ def test_checkout_valid_form_provides_order_id(disabled_csrf_app, order_form):
     assert "id" in response
 
 
-def test_checkout_valid_form_saves_order():
-    pass
+@pytest.mark.django_db
+def test_checkout_valid_form_saves_order(disabled_csrf_app, order_form):
+    response = disabled_csrf_app.post_json(
+        f"/{CURRENT_VERSION}/checkout/", order_form, status=201
+    )
+
+    response = json.loads(response.content)
+    assert Orders.objects.filter(id=response["id"]).first()
